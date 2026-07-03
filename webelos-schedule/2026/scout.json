@@ -1,0 +1,18 @@
+{
+    "Activity 1": {
+        "activity_slot": "Activity 1",
+        "program": "Art Explosion"
+    },
+    "Activity 2": {
+        "activity_slot": "Activity 2",
+        "program": "Catch the Big One"
+    },
+    "Activity 3": {
+        "activity_slot": "Activity 3",
+        "program": "Archery"
+    },
+    "Activity 4": {
+        "activity_slot": "Activity 4",
+        "program": "BB's"
+    }
+}

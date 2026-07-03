@@ -1,0 +1,249 @@
+{
+  "Wednesday": {
+    "date": "June 17, 2026",
+    "events": [
+      {
+        "start_time": "13:30",
+        "end_time": "16:00",
+        "activity": "Check-in",
+        "location": "Office"
+      },
+      {
+        "start_time": "14:00",
+        "end_time": "16:00",
+        "activity": "Swim Checks",
+        "location": "Aquatics"
+      },
+      {
+        "start_time": "16:00",
+        "end_time": "18:15",
+        "activity": "Camp Tours",
+        "location": "Campsite"
+      },
+      {
+        "start_time": "18:15",
+        "end_time": "18:30",
+        "activity": "Evening Flags",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "18:30",
+        "end_time": "19:15",
+        "activity": "Supper",
+        "location": "Dining Hall"
+      },
+      {
+        "start_time": "19:15",
+        "end_time": "20:00",
+        "activity": "Leader Meeting",
+        "location": "Eppard Shelter"
+      },
+      {
+        "start_time": "20:00",
+        "end_time": "20:15",
+        "activity": "Campfire Assembly",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "20:15",
+        "end_time": "22:00",
+        "activity": "Campfire!",
+        "location": "Campfire Ring"
+      },
+      {
+        "start_time": "22:00",
+        "activity": "Taps/Lights Out"
+      }
+    ]
+  },
+  "Thursday": {
+    "date": "June 18, 2026",
+    "events": [
+      {
+        "start_time": "07:00",
+        "end_time": "07:45",
+        "activity": "Reveille"
+      },
+      {
+        "start_time": "07:45",
+        "end_time": "08:00",
+        "activity": "Morning Flags",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "08:00",
+        "end_time": "09:00",
+        "activity": "Breakfast",
+        "location": "Dining Hall"
+      },
+      {
+        "start_time": "09:00",
+        "end_time": "10:30",
+        "activity": "Activity 1"
+      },
+      {
+        "start_time": "10:30",
+        "end_time": "12:00",
+        "activity": "Activity 2"
+      },
+      {
+        "start_time": "12:00",
+        "end_time": "13:30",
+        "activity": "Lunch",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "13:30",
+        "end_time": "15:00",
+        "activity": "Activity 3"
+      },
+      {
+        "start_time": "15:00",
+        "end_time": "16:15",
+        "activity": "Activity 4"
+      },
+      {
+        "start_time": "16:15",
+        "end_time": "17:30",
+        "activity": "Free Time"
+      },
+      {
+        "start_time": "17:30",
+        "end_time": "18:15",
+        "activity": "Clean up for Dinner",
+        "location": "Campsite"
+      },
+      {
+        "start_time": "18:15",
+        "end_time": "18:30",
+        "activity": "Evening Flags",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "18:30",
+        "end_time": "19:30",
+        "activity": "Supper",
+        "location": "Dining Hall"
+      },
+      {
+        "start_time": "19:30",
+        "end_time": "20:00",
+        "activity": "Vespers",
+        "location": "Eppard Shelter"
+      },
+      {
+        "start_time": "20:00",
+        "end_time": "22:00",
+        "activity": "Campsite Campfires"
+      },
+      {
+        "start_time": "22:00",
+        "activity": "Taps/Lights Out"
+      }
+    ]
+  },
+  "Friday": {
+    "date": "June 19, 2026",
+    "events": [
+      {
+        "start_time": "07:00",
+        "end_time": "07:45",
+        "activity": "Reveille"
+      },
+      {
+        "start_time": "07:45",
+        "end_time": "08:00",
+        "activity": "Morning Flags",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "08:00",
+        "end_time": "09:00",
+        "activity": "Breakfast",
+        "location": "Dining Hall"
+      },
+      {
+        "start_time": "09:00",
+        "end_time": "10:30",
+        "activity": "Activity 1"
+      },
+      {
+        "start_time": "10:30",
+        "end_time": "12:00",
+        "activity": "Activity 2"
+      },
+      {
+        "start_time": "12:00",
+        "end_time": "13:30",
+        "activity": "Lunch",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "13:30",
+        "end_time": "15:00",
+        "activity": "Activity 3"
+      },
+      {
+        "start_time": "15:00",
+        "end_time": "16:15",
+        "activity": "Activity 4"
+      },
+      {
+        "start_time": "16:15",
+        "end_time": "17:30",
+        "activity": "Free Time"
+      },
+      {
+        "start_time": "17:30",
+        "end_time": "18:15",
+        "activity": "Clean up for Dinner",
+        "location": "Campsite"
+      },
+      {
+        "start_time": "18:15",
+        "end_time": "18:30",
+        "activity": "Evening Flags",
+        "location": "Parade Field"
+      },
+      {
+        "start_time": "18:30",
+        "end_time": "20:00",
+        "activity": "Supper",
+        "location": "Dining Hall"
+      },
+      {
+        "start_time": "20:00",
+        "end_time": "20:15",
+        "activity": "Campfire Assembly"
+      },
+      {
+        "start_time": "20:15",
+        "end_time": "22:00",
+        "activity": "Campfire!"
+      },
+      {
+        "start_time": "22:00",
+        "activity": "Taps/Lights Out"
+      }
+    ]
+  },
+  "Saturday": {
+    "date": "June 20, 2026",
+    "events": [
+      {
+        "start_time": "07:00",
+        "end_time": "08:00",
+        "activity": "Wake up and Pack up!"
+      },
+      {
+        "start_time": "08:00",
+        "end_time": "10:00",
+        "activity": "Breakfast Grab and Go!"
+      },
+      {
+        "start_time": "10:00",
+        "activity": "Check Out Complete"
+      }
+    ]
+  }
+}

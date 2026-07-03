@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webelos Camp Shenandoah 2026 - Daily Schedule</title>
+  <link rel="stylesheet" href="scouts.css">
+  <style>
+    @page { size: landscape; margin: 0.4in; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f4f3f0;
+      color: #1a1a1a;
+      padding: 1rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--cub-blue);
+      color: white;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.25rem;
+    }
+
+    header p {
+      color: var(--cub-yellow);
+      font-size: 0.95rem;
+    }
+
+    /* Nav */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    nav label {
+      font-size: 0.85rem;
+      color: #555;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    nav select {
+      padding: 0.5rem 0.75rem;
+      border: 2px solid var(--cub-blue);
+      background: white;
+      color: var(--cub-blue);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Single-day view */
+    .day-view { display: none; }
+    .day-view.visible { display: block; }
+
+    .day-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .day-card h2 {
+      padding: 0.75rem 1rem;
+      background: var(--webelos);
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    .day-card h2 span {
+      font-weight: 400;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-left: 0.5rem;
+    }
+
+    .event-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .event-table th {
+      text-align: left;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      border-bottom: 2px solid #e5e5e5;
+      background: #fafafa;
+    }
+
+    .event-table td {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9rem;
+    }
+
+    .event-table tr:last-child td { border-bottom: none; }
+
+    .event-table .time-col { white-space: nowrap; color: #555; width: auto; }
+    .event-table .activity-col { font-weight: 500; }
+    .event-table .location-col { color: #666; font-size: 0.85rem; }
+
+    .event-table tr.activity-slot { background: #fffbe6; }
+    .event-table tr.activity-slot .activity-col[contenteditable] {
+      cursor: text;
+      border-bottom: 1px dashed #cca;
+      min-width: 80px;
+    }
+    .event-table tr.activity-slot .activity-col[contenteditable]:focus {
+      outline: 2px solid var(--cub-yellow);
+      outline-offset: -1px;
+      background: #fff9d6;
+    }
+    .event-table tr.meal-slot td { color: var(--cub-blue); }
+
+    /* All-days grid view */
+    .grid-view { display: none; }
+    .grid-view.visible { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+
+    .grid-view .day-card h2 { font-size: 0.95rem; padding: 0.6rem 0.75rem; }
+    .grid-view .event-table th { padding: 0.35rem 0.6rem; font-size: 0.65rem; }
+    .grid-view .event-table td { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+    .grid-view .event-table .time-col { width: auto; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-view.visible { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 550px) {
+      .grid-view.visible { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.2rem; }
+      nav button { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    }
+
+    /* Print */
+    @media print {
+      body { background: white; padding: 0; font-size: 7pt; }
+      header { padding: 0.2rem; border-radius: 0; margin-bottom: 0.2rem; }
+      header h1 { font-size: 10pt; margin-bottom: 0; }
+      header p { font-size: 7pt; }
+      nav { display: none; }
+      .day-view { display: none !important; }
+      .grid-view { display: grid !important; grid-template-columns: repeat(4, 1fr); gap: 0.1rem; }
+      .grid-view .day-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+      .grid-view .day-card h2 { font-size: 7pt; padding: 0.15rem 0.3rem; }
+      .grid-view .day-card h2 span { font-size: 6pt; }
+      .grid-view .event-table th { padding: 0.1rem 0.25rem; font-size: 6pt; }
+      .grid-view .event-table td { padding: 0.1rem 0.25rem; font-size: 7pt; line-height: 1.3; }
+      .grid-view .event-table td { font-size: 7pt; }
+      .grid-view .event-table th { font-size: 5.5pt; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Camp Shenandoah 2026</h1>
+    <p>Webelos Daily Schedule &middot; June 17&ndash;20</p>
+  </header>
+
+  <nav>
+    <select id="day-select"></select>
+    <label><input type="checkbox" id="show-end-times"> Show end times</label>
+  </nav>
+  <main id="content"></main>
+
+  <script>
+    const MEALS = ['Breakfast', 'Lunch', 'Supper', 'Breakfast Grab and Go!'];
+    const ACTIVITIES = ['Activity 1', 'Activity 2', 'Activity 3', 'Activity 4'];
+    const LS_KEY = 'camp-shenandoah-2026-activities';
+
+    function loadActivities() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; }
+    }
+
+    function saveActivity(slot, value) {
+      const data = loadActivities();
+      data[slot] = value;
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    }
+
+    function getActivityLabel(slot) {
+      const data = loadActivities();
+      return data[slot] || slot;
+    }
+
+    let programAreaMap = {};
+
+    function lookupArea(programName) {
+      return programAreaMap[programName] || '';
+    }
+
+    function formatTime(t) {
+      const [h, m] = t.split(':').map(Number);
+      const h12 = h % 12 || 12;
+      return m === 0 ? `${h12}` : `${h12}:${String(m).padStart(2, '0')}`;
+    }
+
+    let showEndTimes = false;
+
+    function timeRange(ev) {
+      if (!showEndTimes || !ev.end_time) return formatTime(ev.start_time);
+      return `${formatTime(ev.start_time)}\u2013${formatTime(ev.end_time)}`;
+    }
+
+    function rowClass(ev) {
+      if (ACTIVITIES.includes(ev.activity)) return 'activity-slot';
+      if (MEALS.includes(ev.activity)) return 'meal-slot';
+      return '';
+    }
+
+    function buildTable(events, compact) {
+      let rows = events.map(ev => {
+        const cls = rowClass(ev);
+        const isSlot = ACTIVITIES.includes(ev.activity);
+        const label = isSlot ? getActivityLabel(ev.activity) : ev.activity;
+        const editable = isSlot ? ` contenteditable="true" data-slot="${ev.activity}" title="Click to edit"` : '';
+        const location = isSlot ? lookupArea(label) : (ev.location || '');
+        const loc = compact ? '' : `<td class="location-col"${isSlot ? ` data-loc-for="${ev.activity}"` : ''}>${location}</td>`;
+        return `<tr class="${cls}">
+          <td class="time-col">${timeRange(ev)}</td>
+          <td class="activity-col"${editable}>${label}</td>
+          ${loc}
+        </tr>`;
+      }).join('');
+      const locHeader = compact ? '' : '<th>Location</th>';
+      return `<table class="event-table">
+        <thead><tr><th>Time</th><th>Activity</th>${locHeader}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    function buildDayCard(dayName, dayData, compact) {
+      return `<div class="day-card">
+        <h2>${dayName}<span>${dayData.date}</span></h2>
+        ${buildTable(dayData.events, compact)}
+      </div>`;
+    }
+
+    // Seed localStorage from scout.json if not already populated
+    if (!localStorage.getItem(LS_KEY)) {
+      fetch('scout.json')
+        .then(r => r.json())
+        .then(scout => {
+          const data = {};
+          for (const [slot, info] of Object.entries(scout)) {
+            data[slot] = info.program;
+          }
+          localStorage.setItem(LS_KEY, JSON.stringify(data));
+          location.reload();
+        })
+        .catch(() => {});
+    }
+
+    Promise.all([
+      fetch('daily-schedule.json').then(r => r.json()),
+      fetch('program-areas.json').then(r => r.json())
+    ]).then(([schedule, programAreas]) => {
+        programAreas.forEach(p => { programAreaMap[p.program] = p.area; });
+        const days = Object.keys(schedule);
+        const select = document.getElementById('day-select');
+        const content = document.getElementById('content');
+
+        // Populate dropdown
+        days.forEach(day => {
+          const opt = document.createElement('option');
+          opt.value = day;
+          opt.textContent = `${day} — ${schedule[day].date}`;
+          select.appendChild(opt);
+        });
+        const allOpt = document.createElement('option');
+        allOpt.value = 'all';
+        allOpt.textContent = 'All Days';
+        select.appendChild(allOpt);
+
+        // Create day views
+        days.forEach(day => {
+          const div = document.createElement('div');
+          div.className = 'day-view';
+          div.id = `view-${day}`;
+          div.innerHTML = buildDayCard(day, schedule[day], false);
+          content.appendChild(div);
+        });
+
+        function buildGridHTML() {
+          return days.map(d => buildDayCard(d, schedule[d], true)).join('');
+        }
+
+        // Create grid view
+        const gridDiv = document.createElement('div');
+        gridDiv.className = 'grid-view';
+        gridDiv.id = 'view-all';
+        gridDiv.innerHTML = buildGridHTML();
+        content.appendChild(gridDiv);
+
+        function showView(dayKey) {
+          document.querySelectorAll('.day-view, .grid-view').forEach(el => el.classList.remove('visible'));
+          const target = document.getElementById(`view-${dayKey}`);
+          if (target) target.classList.add('visible');
+          select.value = dayKey;
+        }
+
+        select.addEventListener('change', () => showView(select.value));
+
+        function rebuild() {
+          days.forEach(day => {
+            document.getElementById(`view-${day}`).innerHTML = buildDayCard(day, schedule[day], false);
+          });
+          document.getElementById('view-all').innerHTML = buildGridHTML();
+        }
+
+        document.getElementById('show-end-times').addEventListener('change', e => {
+          showEndTimes = e.target.checked;
+          rebuild();
+        });
+
+        // Persist edits on blur and sync all matching cells
+        content.addEventListener('blur', e => {
+          const td = e.target;
+          if (!td.matches('[data-slot]')) return;
+          const slot = td.dataset.slot;
+          const value = td.textContent.trim();
+          const resolved = value || slot;
+          saveActivity(slot, resolved);
+          const area = lookupArea(resolved);
+          // Sync all activity cells and location cells with the same slot
+          document.querySelectorAll(`[data-slot="${slot}"]`).forEach(el => {
+            if (el !== td) el.textContent = resolved;
+          });
+          document.querySelectorAll(`[data-loc-for="${slot}"]`).forEach(el => {
+            el.textContent = area;
+          });
+        }, true);
+
+        // Prevent newlines in contenteditable
+        content.addEventListener('keydown', e => {
+          if (e.target.matches('[data-slot]') && e.key === 'Enter') {
+            e.preventDefault();
+            e.target.blur();
+          }
+        });
+
+        // Default to today's day name, or Wednesday
+        const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+        const defaultDay = days.includes(todayName) ? todayName : days[0];
+        showView(defaultDay);
+      });
+  </script>
+</body>
+</html>

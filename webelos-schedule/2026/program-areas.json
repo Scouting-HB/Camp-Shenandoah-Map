@@ -1,0 +1,16 @@
+[
+  { "program": "Aquanaut/Swimming", "area": "Aquatics" },
+  { "program": "Paddle Craft/Paddle Onward", "area": "Aquatics" },
+  { "program": "Catch the Big One", "area": "Ranger's House" },
+  { "program": "Range and Target Activities", "area": "Ranges" },
+  { "program": "BB's", "area": "BB Range" },
+  { "program": "Archery", "area": "Archery Range" },
+  { "program": "Art Explosion", "area": "Handicraft" },
+  { "program": "Engineer", "area": "Handicraft" },
+  { "program": "Into the Woods", "area": "Nature" },
+  { "program": "Into the Wild", "area": "Nature" },
+  { "program": "Earth Rocks", "area": "Nature" },
+  { "program": "Champion of Nature", "area": "Nature" },
+  { "program": "Modular Design", "area": "Eppard" },
+  { "program": "Estimations", "area": "Eppard" }
+]

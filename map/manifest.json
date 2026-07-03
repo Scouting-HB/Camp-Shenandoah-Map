@@ -1,0 +1,9 @@
+{
+  "name": "Camp Shenandoah Map",
+  "short_name": "Camp Map",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#2d5016",
+  "theme_color": "#2d5016",
+  "icons": []
+}
