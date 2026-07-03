@@ -69,7 +69,7 @@ function parseDMS(s) {
 
 // --- Landmarks from locs.csv ---
 const landmarks = [
-  { name: "Men's Shower", latDMS: "38d8'3\"N", lonDMS: "79d14'4\"W" },
+  { name: "Showers", latDMS: "38d8'3\"N", lonDMS: "79d14'4\"W" },
   { name: "Timber Mountain Program Area", latDMS: "38d8'4\"N", lonDMS: "79d13'54\"W" },
   { name: "Trail/Stewart Intersection", latDMS: "38d7'58\"N", lonDMS: "79d13'50\"W" },
   { name: "Trading Post (SW)", latDMS: "38d8'2\"N", lonDMS: "79d13'52\"W" },
@@ -113,6 +113,20 @@ function pxToLeaflet(px, py) {
 function leafletToPx(latlng) {
   return { px: latlng.lng, py: IMG_H - latlng.lat };
 }
+
+// --- Load official trails from processed data ---
+fetch('trails-geo.json')
+  .then(r => r.ok ? r.json() : [])
+  .catch(() => [])
+  .then(officialTrails => {
+    for (const trail of officialTrails) {
+      const latlngs = trail.points.map(p => pxToLeaflet(p.px, p.py));
+      const pl = L.polyline(latlngs, { color: '#6b4c2a', weight: 3, opacity: 0.7 }).addTo(map);
+      if (trail.name) {
+        pl.bindPopup(`<div class="landmark-popup">${trail.name}</div>`, { closeButton: false });
+      }
+    }
+  });
 
 // --- Add landmark markers ---
 const markerIcon = L.divIcon({
@@ -183,17 +197,6 @@ map.getContainer().addEventListener('touchend', function () {
   coordDisplay.classList.remove('visible');
 });
 
-// --- Show coordinates on click ---
-map.on('click', function (e) {
-  const { px, py } = leafletToPx(e.latlng);
-  if (px < 0 || px > IMG_W || py < 0 || py > IMG_H) return;
-  const gps = pixelToGps(px, py);
-  L.popup()
-    .setLatLng(e.latlng)
-    .setContent(`<div class="landmark-popup"><div class="coords">${gps.lat.toFixed(5)}, ${gps.lon.toFixed(5)}</div></div>`)
-    .openOn(map);
-});
-
 // --- GPS geolocation ---
 let userMarker = null;
 let userCircle = null;
@@ -241,6 +244,157 @@ locateBtn.addEventListener('click', () => {
     },
     { enableHighAccuracy: true, maximumAge: 5000 }
   );
+});
+
+// --- Trail drawing ---
+const drawBtn = document.getElementById('drawBtn');
+const drawToolbar = document.getElementById('drawToolbar');
+const undoTrailBtn = document.getElementById('undoTrailBtn');
+const exportTrailBtn = document.getElementById('exportTrailBtn');
+const clearTrailBtn = document.getElementById('clearTrailBtn');
+
+let drawMode = false;
+let drawing = false;
+let currentTrail = [];
+let trails = JSON.parse(localStorage.getItem('trails') || '[]');
+let trailPolylines = [];
+let activePolyline = null;
+
+function saveTrails() {
+  localStorage.setItem('trails', JSON.stringify(trails));
+}
+
+function renderTrails() {
+  trailPolylines.forEach(p => map.removeLayer(p));
+  trailPolylines = [];
+  for (const trail of trails) {
+    const latlngs = trail.map(([x, y]) => pxToLeaflet(x, y));
+    const pl = L.polyline(latlngs, { color: '#e11d48', weight: 3, opacity: 0.8 }).addTo(map);
+    trailPolylines.push(pl);
+  }
+}
+
+// Load any trails from URL params
+(function loadFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const data = params.get('trails');
+  if (data) {
+    try {
+      const imported = JSON.parse(atob(data));
+      if (Array.isArray(imported)) {
+        trails = trails.concat(imported);
+        saveTrails();
+      }
+    } catch (e) { console.warn('Failed to parse trail data from URL'); }
+  }
+})();
+
+renderTrails();
+
+drawBtn.addEventListener('click', () => {
+  drawMode = !drawMode;
+  drawBtn.classList.toggle('active', drawMode);
+  drawToolbar.classList.toggle('visible', drawMode);
+  map.dragging[drawMode ? 'disable' : 'enable']();
+  map.getContainer().style.cursor = drawMode ? 'crosshair' : 'crosshair';
+});
+
+function startDraw(latlng) {
+  if (!drawMode) return;
+  drawing = true;
+  const { px, py } = leafletToPx(latlng);
+  currentTrail = [[Math.round(px), Math.round(py)]];
+  activePolyline = L.polyline([latlng], { color: '#e11d48', weight: 3, opacity: 0.8, dashArray: '6,4' }).addTo(map);
+}
+
+function continueDraw(latlng) {
+  if (!drawing) return;
+  const { px, py } = leafletToPx(latlng);
+  currentTrail.push([Math.round(px), Math.round(py)]);
+  activePolyline.addLatLng(latlng);
+}
+
+function endDraw() {
+  if (!drawing) return;
+  drawing = false;
+  if (activePolyline) { map.removeLayer(activePolyline); activePolyline = null; }
+  if (currentTrail.length >= 2) {
+    trails.push(currentTrail);
+    saveTrails();
+    renderTrails();
+  }
+  currentTrail = [];
+}
+
+// Mouse drawing
+map.on('mousedown', (e) => { if (drawMode) { startDraw(e.latlng); } });
+map.on('mousemove', (e) => { if (drawing) { continueDraw(e.latlng); } });
+map.on('mouseup', () => { endDraw(); });
+
+// Touch drawing
+map.getContainer().addEventListener('touchstart', function (e) {
+  if (!drawMode || e.touches.length !== 1) return;
+  const touch = e.touches[0];
+  const containerRect = map.getContainer().getBoundingClientRect();
+  const point = L.point(touch.clientX - containerRect.left, touch.clientY - containerRect.top);
+  startDraw(map.containerPointToLatLng(point));
+}, { passive: true });
+
+map.getContainer().addEventListener('touchmove', function (e) {
+  if (!drawing || e.touches.length !== 1) return;
+  const touch = e.touches[0];
+  const containerRect = map.getContainer().getBoundingClientRect();
+  const point = L.point(touch.clientX - containerRect.left, touch.clientY - containerRect.top);
+  continueDraw(map.containerPointToLatLng(point));
+}, { passive: true });
+
+map.getContainer().addEventListener('touchend', function () {
+  if (drawing) endDraw();
+}, { passive: true });
+
+// Prevent click popup when in draw mode
+const origClickHandler = map._events.click;
+map.off('click');
+map.on('click', function (e) {
+  if (drawMode) return;
+  const { px, py } = leafletToPx(e.latlng);
+  if (px < 0 || px > IMG_W || py < 0 || py > IMG_H) return;
+  const gps = pixelToGps(px, py);
+  L.popup()
+    .setLatLng(e.latlng)
+    .setContent(`<div class="landmark-popup"><div class="coords">${gps.lat.toFixed(5)}, ${gps.lon.toFixed(5)}</div></div>`)
+    .openOn(map);
+});
+
+undoTrailBtn.addEventListener('click', () => {
+  if (trails.length === 0) return;
+  trails.pop();
+  saveTrails();
+  renderTrails();
+});
+
+exportTrailBtn.addEventListener('click', () => {
+  const json = JSON.stringify(trails, null, 2);
+  // Try URL param (if short enough)
+  const b64 = btoa(JSON.stringify(trails));
+  const url = location.origin + location.pathname + '?trails=' + encodeURIComponent(b64);
+  if (url.length < 2000) {
+    prompt('Share this URL (or copy the downloaded file):', url);
+  }
+  // Always also download as file
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trails.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+clearTrailBtn.addEventListener('click', () => {
+  if (!confirm('Clear all drawn trails?')) return;
+  trails = [];
+  saveTrails();
+  renderTrails();
 });
 
 // --- Register service worker ---

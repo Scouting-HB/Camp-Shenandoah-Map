@@ -36,10 +36,41 @@
       box-shadow: 0 0 8px rgba(37,99,235,.6);
     }
     .leaflet-control-zoom { margin-top: 12px !important; margin-right: 12px !important; }
+    .draw-btn {
+      position: absolute; top: 12px; right: 12px; z-index: 1000;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: white; border: 2px solid rgba(0,0,0,.2);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    }
+    .draw-btn svg { width: 20px; height: 20px; }
+    .draw-btn.active { background: #fbbf24; border-color: #f59e0b; }
+    .draw-toolbar {
+      position: absolute; top: 64px; right: 12px; z-index: 1000;
+      display: none; flex-direction: column; gap: 6px;
+    }
+    .draw-toolbar.visible { display: flex; }
+    .draw-toolbar button {
+      background: white; border: 2px solid rgba(0,0,0,.2); border-radius: 8px;
+      padding: 6px 12px; font-size: 13px; cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3); white-space: nowrap;
+    }
+    .draw-toolbar button:hover { background: #f3f4f6; }
+    .draw-toolbar button.danger { color: #dc2626; }
   </style>
 </head>
 <body>
   <div id="coordDisplay" class="coord-display"></div>
+  <button class="draw-btn" id="drawBtn" title="Draw trails">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+    </svg>
+  </button>
+  <div class="draw-toolbar" id="drawToolbar">
+    <button id="undoTrailBtn">Undo last trail</button>
+    <button id="exportTrailBtn">Export trails</button>
+    <button id="clearTrailBtn" class="danger">Clear all</button>
+  </div>
   <div id="map"></div>
   <button class="locate-btn" id="locateBtn" title="Show my location">
     <svg viewBox="0 0 24 24" fill="currentColor">
