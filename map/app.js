@@ -246,6 +246,78 @@ locateBtn.addEventListener('click', () => {
   );
 });
 
+// --- Compass bearing rotation ---
+const compassBtn = document.getElementById('compassBtn');
+let compassActive = false;
+let currentBearing = 0;
+
+// The camp map's north isn't aligned to pixel-up; compute the map's north angle
+// from the affine transform. The affine maps pixel-Y to lat, so "north" in pixel
+// space points in the direction of increasing latitude.
+const mapNorthAngle = Math.atan2(-affine.d, -affine.a) * (180 / Math.PI);
+
+function applyRotation(degrees) {
+  const pane = map.getPane('mapPane');
+  const center = map.getSize().divideBy(2);
+  pane.style.transformOrigin = center.x + 'px ' + center.y + 'px';
+  pane.style.transform = 'rotate(' + degrees + 'deg)';
+}
+
+function clearRotation() {
+  const pane = map.getPane('mapPane');
+  pane.style.transformOrigin = '';
+  pane.style.transform = '';
+}
+
+function handleOrientation(e) {
+  // webkitCompassHeading (iOS) or alpha (Android; 360 - alpha approximates heading)
+  let heading = null;
+  if (typeof e.webkitCompassHeading === 'number') {
+    heading = e.webkitCompassHeading;
+  } else if (e.alpha !== null) {
+    heading = (360 - e.alpha) % 360;
+  }
+  if (heading === null) return;
+  currentBearing = heading;
+  applyRotation(-heading);
+}
+
+compassBtn.addEventListener('click', async () => {
+  if (compassActive) {
+    compassActive = false;
+    compassBtn.classList.remove('active');
+    window.removeEventListener('deviceorientationabsolute', handleOrientation);
+    window.removeEventListener('deviceorientation', handleOrientation);
+    clearRotation();
+    return;
+  }
+
+  // iOS 13+ requires permission
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      if (perm !== 'granted') {
+        alert('Compass permission denied');
+        return;
+      }
+    } catch (err) {
+      alert('Could not request compass permission');
+      return;
+    }
+  }
+
+  compassActive = true;
+  compassBtn.classList.add('active');
+
+  // Prefer absolute orientation if available
+  if ('ondeviceorientationabsolute' in window) {
+    window.addEventListener('deviceorientationabsolute', handleOrientation);
+  } else {
+    window.addEventListener('deviceorientation', handleOrientation);
+  }
+});
+
 // --- Trail drawing ---
 const drawBtn = document.getElementById('drawBtn');
 const drawToolbar = document.getElementById('drawToolbar');
