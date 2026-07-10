@@ -292,16 +292,6 @@ function stopObserving() {
   }
 }
 
-// Rotate drag deltas so panning matches screen direction when map is rotated
-map.dragging._draggable.on('predrag', function () {
-  if (!compassActive) return;
-  const delta = this._newPos.subtract(this._startPos);
-  const rad = currentBearing * Math.PI / 180;
-  const rx = delta.x * Math.cos(rad) - delta.y * Math.sin(rad);
-  const ry = delta.x * Math.sin(rad) + delta.y * Math.cos(rad);
-  this._newPos = this._startPos.add(L.point(rx, ry));
-});
-
 // Fix click/tap coordinate mapping when rotated
 const origContainerPointToLayerPoint = map.containerPointToLayerPoint.bind(map);
 map.containerPointToLayerPoint = function (point) {
