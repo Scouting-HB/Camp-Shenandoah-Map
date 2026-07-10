@@ -250,27 +250,89 @@ locateBtn.addEventListener('click', () => {
 const compassBtn = document.getElementById('compassBtn');
 let compassActive = false;
 let currentBearing = 0;
-
-// The camp map's north isn't aligned to pixel-up; compute the map's north angle
-// from the affine transform. The affine maps pixel-Y to lat, so "north" in pixel
-// space points in the direction of increasing latitude.
-const mapNorthAngle = Math.atan2(-affine.d, -affine.a) * (180 / Math.PI);
+let rotationObserver = null;
+let suppressObserver = false;
 
 function applyRotation(degrees) {
+  suppressObserver = true;
   const pane = map.getPane('mapPane');
-  const center = map.getSize().divideBy(2);
-  pane.style.transformOrigin = center.x + 'px ' + center.y + 'px';
-  pane.style.transform = 'rotate(' + degrees + 'deg)';
+  const size = map.getSize();
+  const pos = L.DomUtil.getPosition(pane);
+  // Transform-origin must track viewport center in mapPane's local coords
+  const ox = size.x / 2 - pos.x;
+  const oy = size.y / 2 - pos.y;
+  pane.style.transformOrigin = ox + 'px ' + oy + 'px';
+  const base = pane.style.transform.replace(/\s*rotate\([^)]+\)/g, '');
+  pane.style.transform = base + ' rotate(' + degrees + 'deg)';
+  suppressObserver = false;
 }
 
 function clearRotation() {
+  suppressObserver = true;
   const pane = map.getPane('mapPane');
   pane.style.transformOrigin = '';
-  pane.style.transform = '';
+  pane.style.transform = pane.style.transform.replace(/\s*rotate\([^)]+\)/g, '');
+  suppressObserver = false;
 }
 
+// Re-append rotation whenever Leaflet updates the mapPane transform (during pan/zoom)
+function startObserving() {
+  const pane = map.getPane('mapPane');
+  rotationObserver = new MutationObserver(() => {
+    if (suppressObserver || !compassActive) return;
+    applyRotation(-currentBearing);
+  });
+  rotationObserver.observe(pane, { attributes: true, attributeFilter: ['style'] });
+}
+
+function stopObserving() {
+  if (rotationObserver) {
+    rotationObserver.disconnect();
+    rotationObserver = null;
+  }
+}
+
+// Rotate drag deltas so panning matches screen direction when map is rotated
+map.dragging._draggable.on('predrag', function () {
+  if (!compassActive) return;
+  const delta = this._newPos.subtract(this._startPos);
+  const rad = currentBearing * Math.PI / 180;
+  const rx = delta.x * Math.cos(rad) - delta.y * Math.sin(rad);
+  const ry = delta.x * Math.sin(rad) + delta.y * Math.cos(rad);
+  this._newPos = this._startPos.add(L.point(rx, ry));
+});
+
+// Fix click/tap coordinate mapping when rotated
+const origContainerPointToLayerPoint = map.containerPointToLayerPoint.bind(map);
+map.containerPointToLayerPoint = function (point) {
+  point = L.point(point);
+  if (!compassActive) return origContainerPointToLayerPoint(point);
+  const size = this.getSize();
+  const cx = size.x / 2, cy = size.y / 2;
+  const rad = currentBearing * Math.PI / 180;
+  const dx = point.x - cx, dy = point.y - cy;
+  return origContainerPointToLayerPoint(L.point(
+    dx * Math.cos(rad) - dy * Math.sin(rad) + cx,
+    dx * Math.sin(rad) + dy * Math.cos(rad) + cy
+  ));
+};
+
+const origLayerPointToContainerPoint = map.layerPointToContainerPoint.bind(map);
+map.layerPointToContainerPoint = function (point) {
+  point = L.point(point);
+  if (!compassActive) return origLayerPointToContainerPoint(point);
+  const cp = origLayerPointToContainerPoint(point);
+  const size = this.getSize();
+  const cx = size.x / 2, cy = size.y / 2;
+  const rad = currentBearing * Math.PI / 180;
+  const dx = cp.x - cx, dy = cp.y - cy;
+  return L.point(
+    dx * Math.cos(rad) + dy * Math.sin(rad) + cx,
+    -dx * Math.sin(rad) + dy * Math.cos(rad) + cy
+  );
+};
+
 function handleOrientation(e) {
-  // webkitCompassHeading (iOS) or alpha (Android; 360 - alpha approximates heading)
   let heading = null;
   if (typeof e.webkitCompassHeading === 'number') {
     heading = e.webkitCompassHeading;
@@ -288,6 +350,7 @@ compassBtn.addEventListener('click', async () => {
     compassBtn.classList.remove('active');
     window.removeEventListener('deviceorientationabsolute', handleOrientation);
     window.removeEventListener('deviceorientation', handleOrientation);
+    stopObserving();
     clearRotation();
     return;
   }
@@ -309,8 +372,8 @@ compassBtn.addEventListener('click', async () => {
 
   compassActive = true;
   compassBtn.classList.add('active');
+  startObserving();
 
-  // Prefer absolute orientation if available
   if ('ondeviceorientationabsolute' in window) {
     window.addEventListener('deviceorientationabsolute', handleOrientation);
   } else {
